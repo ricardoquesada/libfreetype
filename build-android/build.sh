@@ -1,31 +1,20 @@
 #!/bin/bash
 #
-# build_android.sh
-# Copyright (c) 2012 Jacek Marchwicki
+# This file was copied from libffmpeg library.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
-if [ "$NDK" = "" ]; then
+if [ "$NDK_ROOT" = "" ]; then
 	echo NDK variable not set, exiting
-	echo "Use: export NDK=/your/path/to/android-ndk"
+	echo "Use: export NDK_ROOT=/your/path/to/android-ndk"
 	exit 1
 fi
 
 OS=`uname -s | tr '[A-Z]' '[a-z]'`
+cpus=$(sysctl hw.ncpu | awk '{print $2}')
 
 function build_freetype2
 {
-	PLATFORM=$NDK/platforms/$PLATFORM_VERSION/arch-$ARCH/
+	PLATFORM=$NDK_ROOT/platforms/$PLATFORM_VERSION/arch-$ARCH/
 	export PATH=${PATH}:$PREBUILT/bin/
 	CROSS_COMPILE=$PREBUILT/bin/$EABIARCH-
 	CFLAGS=$OPTIMIZE_CFLAGS
@@ -54,7 +43,7 @@ function build_freetype2
 	    || exit 1
 
 	make clean || exit 1
-	make -j4 install # || exit 1
+	make -j$cpus install # || exit 1
 	make clean || exit 1
 }
 
@@ -67,8 +56,7 @@ CPU=armv5
 OPTIMIZE_CFLAGS="-marm -march=$CPU"
 PREFIX=./dist/armeabi
 ADDITIONAL_CONFIGURE_FLAG=
-SONAME=libffmpeg.so
-PREBUILT=$NDK/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$OS-x86
+PREBUILT=$NDK_ROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$OS-x86
 PLATFORM_VERSION=android-5
 build_freetype2
 
@@ -80,8 +68,7 @@ ARCH=x86
 OPTIMIZE_CFLAGS="-m32"
 PREFIX=./dist/x86
 ADDITIONAL_CONFIGURE_FLAG=--disable-asm
-SONAME=libffmpeg.so
-PREBUILT=$NDK/toolchains/x86-4.4.3/prebuilt/$OS-x86
+PREBUILT=$NDK_ROOT/toolchains/x86-4.4.3/prebuilt/$OS-x86
 PLATFORM_VERSION=android-9
 build_freetype2
 
@@ -92,8 +79,7 @@ build_freetype2
 # OPTIMIZE_CFLAGS="-EL -march=mips32 -mips32 -mhard-float"
 # PREFIX=./dist/mips
 # ADDITIONAL_CONFIGURE_FLAG="--disable-mips32r2"
-# SONAME=libffmpeg.so
-# PREBUILT=$NDK/toolchains/mipsel-linux-android-4.4.3/prebuilt/$OS-x86
+# PREBUILT=$NDK_ROOT/toolchains/mipsel-linux-android-4.4.3/prebuilt/$OS-x86
 # PLATFORM_VERSION=android-9
 # build_freetype2
 
@@ -105,8 +91,7 @@ OPTIMIZE_CFLAGS="-mfloat-abi=softfp -mfpu=vfpv3-d16 -marm -march=$CPU "
 PREFIX=./dist/armeabi-v7a
 OUT_LIBRARY=$PREFIX/libffmpeg.so
 ADDITIONAL_CONFIGURE_FLAG=
-SONAME=libffmpeg.so
-PREBUILT=$NDK/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$OS-x86
+PREBUILT=$NDK_ROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$OS-x86
 PLATFORM_VERSION=android-5
 build_freetype2
 
@@ -118,8 +103,7 @@ build_freetype2
 # PREFIX=./dist/armeabi-v7a-neon
 # OUT_LIBRARY=../ffmpeg-build/armeabi-v7a/libffmpeg-neon.so
 # ADDITIONAL_CONFIGURE_FLAG=--enable-neon
-# SONAME=libffmpeg-neon.so
-# PREBUILT=$NDK/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$OS-x86
+# PREBUILT=$NDK_ROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$OS-x86
 # PLATFORM_VERSION=android-9
 # build_freetype2
 
